@@ -1,0 +1,19 @@
+# Build directories
+/build/
+
+# Binary output directory
+/bin/
+
+# IDE and editor files
+.idea/
+.vs/
+.vc/
+*.swp
+*.swo
+*.tmp
+*~
+
+# Logs and temporary files
+*.log
+.DS_Store
+Thumbs.db
