@@ -17,7 +17,7 @@
  * @return std::string String representation of the time unit
  */
 template<typename T>
-static std::string duration_unit() {
+inline std::string duration_unit() {
     if constexpr (std::is_same_v<T, std::chrono::milliseconds>)
         return " ms";
     else if constexpr (std::is_same_v<T, std::chrono::microseconds>)
@@ -57,32 +57,47 @@ class stopwatch {
 	using steady_clock = std::chrono::steady_clock;
 public:
 	/**
-	 * @brief Creates stopwatch, records the start measurement time
+	 * @brief Starts the stopwatch with the given output string
 	 * 
-	 * @param output Reference to the string where the measurement result will be written
+	 * @param output Rvalue reference to the string where the result will be stored
 	 */
-	explicit stopwatch(std::string& output)
-		: output_(output)
-		, start_(steady_clock::now()) {}
+	void run(std::string&& output)
+	{
+		output_ = std::move(output);
+		start_ = steady_clock::now();
+	}
 
 	/**
-	 * @brief Stopwatch destructor - completes time measurement
+	 * @brief Stops the stopwatch and returns the elapsed time string
 	 * 
-	 * Calculates the elapsed time, converts it to the specified Dur type
-	 * and writes the result to output_ string in the format "<number><unit>"
+	 * Resets start_ to allow reuse of this stopwatch instance.
+	 * 
+	 * @return std::string The formatted elapsed time string
+	 * @pre run() must have been called before
 	 */
-	~stopwatch() {
+	std::string stop() {
 		auto end = steady_clock::now();
 		auto dur = std::chrono::duration_cast<Dur>(end - start_).count();
 		output_.append(std::to_string(dur));
 		output_.append(duration_unit<Dur>());
+		start_ = steady_clock::time_point{};  // Reset for potential reuse
+		return output_;
 	}
 
+	/**
+	 * @brief Checks if the stopwatch has been started
+	 * @return true if run() has been called, false otherwise
+	 */
+	bool is_running() const {
+		return start_ != steady_clock::time_point{};
+	}
+
+	stopwatch() = default;
 	// Copy prohibition
 	stopwatch(const stopwatch&) = delete;
 	stopwatch& operator=(const stopwatch&) = delete;
 
 private:
-	std::string& output_;                     ///< Reference to the string for output result
-	steady_clock::time_point start_;          ///< Timestamp of the start measurement
+	std::string output_;                     ///< Output string storage
+	steady_clock::time_point start_;         ///< Timestamp of the start measurement
 };
