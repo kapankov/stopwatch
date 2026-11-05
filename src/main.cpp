@@ -14,14 +14,14 @@ public:
 	 * @brief Constructs scope_timer and starts measuring with "duration: " prefix
 	 */
 	scope_timer() {
-		run("duration: ");
+		this->run("duration: ");
 	}
 
 	/**
 	 * @brief Destructor - stops timer and prints the elapsed time
 	 */
 	~scope_timer() {
-		std::cout << stop() << "\n";
+		std::cout << this->stop() << "\n";
 	}
 };
 
